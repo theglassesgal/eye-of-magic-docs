@@ -1,0 +1,9 @@
+/* Eye of MAGIC Header Gradient */
+.md-header {
+    background: linear-gradient(135deg, #b30000 0%, #ff3366 100%) !important;
+}
+
+/* Eye of MAGIC Navigation Tabs Gradient */
+.md-tabs {
+    background: linear-gradient(135deg, #b30000 0%, #ff3366 100%) !important;
+}
