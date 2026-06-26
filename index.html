@@ -459,44 +459,45 @@ let toastTimeout = null;
 audioEl.src = track.source;
 audioEl.volume = 0;
 
+// --- Eye Spawning Logic (5 Left, 5 Right) ---
 const eyeContainer = document.getElementById('eye-container');
-const eyeCount = 10;
+const eyesPerSide = 5;
 const eyes = [];
 
 function spawnEyes() {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const wrapperWidth = 840; 
-    const centerZoneLeft = (screenWidth / 2) - (wrapperWidth / 2);
-    const centerZoneRight = (screenWidth / 2) + (wrapperWidth / 2);
     
+    let leftZoneMax = (screenWidth / 2) - (wrapperWidth / 2) - 60;
+    if (leftZoneMax < 40) leftZoneMax = 40; 
+    
+    let rightZoneMin = (screenWidth / 2) + (wrapperWidth / 2) + 20;
+    if (rightZoneMin > screenWidth - 60) rightZoneMin = screenWidth - 60;
+
     eyeContainer.innerHTML = '';
     eyes.length = 0;
 
-    for (let i = 0; i < eyeCount; i++) {
-        const eye = document.createElement('img');
-        eye.src = 'eye.png';
-        eye.className = 'eye-img';
-        
-        let x, y;
-        y = 30 + Math.random() * (screenHeight - 80);
-
-        if (screenWidth > 900) {
-            const isLeft = Math.random() > 0.5;
-            if (isLeft) {
-                x = 20 + Math.random() * (centerZoneLeft - 80);
-            } else {
-                x = centerZoneRight + 20 + Math.random() * (screenWidth - centerZoneRight - 80);
-            }
-        } else {
-            x = Math.random() * (screenWidth - 45);
-        }
-
-        eye.style.left = `${x}px`;
-        eye.style.top = `${y}px`;
-        eyeContainer.appendChild(eye);
-        eyes.push(eye);
+    for (let i = 0; i < eyesPerSide; i++) {
+        createEye(20 + Math.random() * (leftZoneMax - 20), screenHeight);
     }
+    
+    for (let i = 0; i < eyesPerSide; i++) {
+        createEye(rightZoneMin + Math.random() * ((screenWidth - 60) - rightZoneMin), screenHeight);
+    }
+}
+
+function createEye(xPos, screenHeight) {
+    const eye = document.createElement('img');
+    eye.src = 'eye.png';
+    eye.className = 'eye-img';
+    
+    const yPos = 40 + Math.random() * (screenHeight - 100);
+    
+    eye.style.left = `${xPos}px`;
+    eye.style.top = `${yPos}px`;
+    eyeContainer.appendChild(eye);
+    eyes.push(eye);
 }
 
 spawnEyes();
@@ -515,6 +516,7 @@ document.addEventListener('mousemove', (e) => {
     });
 });
 
+// --- Audio Logic ---
 function showToast(status) {
     toastTitle.textContent = status;
     toastDesc.textContent = track.title + " - " + track.credit;
@@ -561,9 +563,10 @@ function startMusicEngine() {
         fadeAudio(targetVolume, 1000);
         playBtn.textContent = "Pause";
         showToast("Audio Target Acquired");
-    }).catch(() => {
-        hasStarted = false;
-    });
+        
+        document.removeEventListener('click', startMusicEngine);
+        document.removeEventListener('keydown', startMusicEngine);
+    }).catch(() => {});
 }
 
 window.onload = () => {
@@ -573,7 +576,8 @@ window.onload = () => {
         playBtn.textContent = "Pause";
         showToast("Audio Target Acquired");
     }).catch(() => {
-        document.addEventListener('click', startMusicEngine, { once: true });
+        document.addEventListener('click', startMusicEngine);
+        document.addEventListener('keydown', startMusicEngine);
     });
 };
 
