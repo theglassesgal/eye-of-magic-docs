@@ -37,28 +37,72 @@ body::before {
     background-image: linear-gradient(rgba(255, 0, 0, 0.03) 1px, transparent 1px),
                       linear-gradient(90deg, rgba(255, 0, 0, 0.03) 1px, transparent 1px);
     background-size: 30px 30px;
+    z-index: -2;
+    pointer-events: none;
+}
+
+@keyframes scanlines {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient(to bottom, transparent 50%, rgba(230, 0, 0, 0.02) 51%);
+    background-size: 100% 4px;
+    z-index: -1;
+    pointer-events: none;
+    animation: scanlines 10s linear infinite;
+    opacity: 0.6;
+}
+
+#eye-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     z-index: -1;
     pointer-events: none;
 }
 
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-    100% { transform: translateY(0px); }
+.eye-img {
+    position: absolute;
+    width: 45px;
+    height: auto;
+    transform-origin: center center;
+    filter: drop-shadow(0 0 8px rgba(230, 0, 0, 0.6));
+    transition: filter 0.3s ease;
+}
+
+@keyframes floatAndPulse {
+    0% { 
+        transform: translateY(0px); 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 0, 0, 0.1); 
+    }
+    50% { 
+        transform: translateY(-8px); 
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(230, 0, 0, 0.3); 
+    }
+    100% { 
+        transform: translateY(0px); 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 0, 0, 0.1); 
+    }
 }
 
 .wrapper {
-    background: rgba(15, 0, 0, 0.75);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(230, 0, 0, 0.15);
+    background: rgba(12, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(230, 0, 0, 0.2);
     border-top: 2px solid var(--accent-main);
     padding: 40px;
     border-radius: 4px;
     max-width: 800px;
     width: 100%;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
-    animation: float 6s ease-in-out infinite;
+    animation: floatAndPulse 6s ease-in-out infinite;
 }
 
 @keyframes textGlow {
@@ -98,9 +142,23 @@ h1 {
     font-weight: 600;
     cursor: url('hover.png'), pointer;
     border-radius: 2px;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
     letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(230,0,0,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.tab-btn:hover::before {
+    left: 100%;
 }
 
 .tab-btn:hover {
@@ -154,6 +212,11 @@ p, ul {
     font-size: 1.05em;
     color: var(--text-main);
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    transition: border-left-color 0.3s ease;
+}
+
+.cmd-block:hover {
+    border-left-color: #ff3333;
 }
 
 .content-pane.active .cmd-block {
@@ -237,6 +300,10 @@ input[type=range]::-webkit-slider-thumb {
     background: var(--accent-main);
     -webkit-appearance: none;
     margin-top: -4px;
+    transition: transform 0.1s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
 }
 input[type=range]::-moz-range-track {
     width: 100%;
@@ -250,6 +317,10 @@ input[type=range]::-moz-range-thumb {
     border-radius: 50%;
     background: var(--accent-main);
     border: none;
+    transition: transform 0.1s;
+}
+input[type=range]::-moz-range-thumb:hover {
+    transform: scale(1.3);
 }
 
 .toast {
@@ -284,6 +355,8 @@ input[type=range]::-moz-range-thumb {
 </style>
 </head>
 <body>
+
+<div id="eye-container"></div>
 
 <div class="toast" id="music-toast">
     <div id="toast-title"></div>
@@ -386,6 +459,62 @@ let toastTimeout = null;
 audioEl.src = track.source;
 audioEl.volume = 0;
 
+const eyeContainer = document.getElementById('eye-container');
+const eyeCount = 10;
+const eyes = [];
+
+function spawnEyes() {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const wrapperWidth = 840; 
+    const centerZoneLeft = (screenWidth / 2) - (wrapperWidth / 2);
+    const centerZoneRight = (screenWidth / 2) + (wrapperWidth / 2);
+    
+    eyeContainer.innerHTML = '';
+    eyes.length = 0;
+
+    for (let i = 0; i < eyeCount; i++) {
+        const eye = document.createElement('img');
+        eye.src = 'eye.png';
+        eye.className = 'eye-img';
+        
+        let x, y;
+        y = 30 + Math.random() * (screenHeight - 80);
+
+        if (screenWidth > 900) {
+            const isLeft = Math.random() > 0.5;
+            if (isLeft) {
+                x = 20 + Math.random() * (centerZoneLeft - 80);
+            } else {
+                x = centerZoneRight + 20 + Math.random() * (screenWidth - centerZoneRight - 80);
+            }
+        } else {
+            x = Math.random() * (screenWidth - 45);
+        }
+
+        eye.style.left = `${x}px`;
+        eye.style.top = `${y}px`;
+        eyeContainer.appendChild(eye);
+        eyes.push(eye);
+    }
+}
+
+spawnEyes();
+window.addEventListener('resize', spawnEyes);
+
+document.addEventListener('mousemove', (e) => {
+    eyes.forEach(eye => {
+        const rect = eye.getBoundingClientRect();
+        const eyeCenterX = rect.left + (rect.width / 2);
+        const eyeCenterY = rect.top + (rect.height / 2);
+        
+        const rad = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
+        const deg = rad * (180 / Math.PI);
+        
+        eye.style.transform = `rotate(${deg}deg)`;
+    });
+});
+
 function showToast(status) {
     toastTitle.textContent = status;
     toastDesc.textContent = track.title + " - " + track.credit;
@@ -431,7 +560,7 @@ function startMusicEngine() {
         hasStarted = true;
         fadeAudio(targetVolume, 1000);
         playBtn.textContent = "Pause";
-        showToast("Now Playing");
+        showToast("Audio Target Acquired");
     }).catch(() => {
         hasStarted = false;
     });
@@ -442,7 +571,7 @@ window.onload = () => {
         hasStarted = true;
         fadeAudio(targetVolume, 1000);
         playBtn.textContent = "Pause";
-        showToast("Now Playing");
+        showToast("Audio Target Acquired");
     }).catch(() => {
         document.addEventListener('click', startMusicEngine, { once: true });
     });
@@ -458,12 +587,12 @@ function toggleMusic() {
         audioEl.play();
         playBtn.textContent = "Pause";
         fadeAudio(targetVolume, 600);
-        showToast("Resumed");
+        showToast("Audio Playback Resumed");
     } else {
         playBtn.textContent = "Play";
         fadeAudio(0, 600).then(() => {
             audioEl.pause();
-            showToast("Paused");
+            showToast("Audio Playback Paused");
         });
     }
 }
