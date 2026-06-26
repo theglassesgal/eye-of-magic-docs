@@ -1,0 +1,39 @@
+<h2>how the bridge works</h2>
+<p>this system is a real-time two-way bridge between discord and roblox. when you run a command in discord, the python bot logs it in a queue. your live roblox server constantly pings the bot's web server every few seconds. once roblox sees a pending command, it pulls it down and executes the moderation action in-game immediately.</p>
+
+<h2>moderation commands</h2>
+
+<div class="cmd-box">mg.ban &lt;username&gt; [reason]</div>
+<p>permanently bans a user globally from the entire game universe.</p>
+
+<div class="cmd-box">mg.unban &lt;username&gt;</div>
+<p>lifts a global universe ban so the user can rejoin.</p>
+
+<div class="cmd-box">mg.kick &lt;username&gt; [reason]</div>
+<p>forcefully removes a user from their active server instance.</p>
+
+<div class="cmd-box">mg.flag &lt;username&gt; [reason]</div>
+<p>marks a user in the moderation database. when they join a server, their log will be highlighted.</p>
+
+<div class="cmd-box">mg.unflag &lt;username&gt;</div>
+<p>removes the database warning flag from a user.</p>
+
+<h2>utility commands</h2>
+
+<div class="cmd-box">mg.clear [amount]</div>
+<p>purges discord messages. leaving it blank or doing over 100 clones and deletes the channel for an instant wipe.</p>
+
+<div class="cmd-box">mg.help</div>
+<p>shows the quick reference menu in discord.</p>
+
+<h2>host console commands</h2>
+<p>these are typed directly into your computer terminal, not discord.</p>
+
+<div class="cmd-box">stop</div>
+<p>cleanly shuts down the web server and takes the bot offline.</p>
+
+<div class="cmd-box">st</div>
+<p>prints the status type reference sheet to your terminal.</p>
+
+<div class="cmd-box">status &lt;type&gt; &lt;message&gt;</div>
+<p>updates the bot's custom discord activity status.</p>
