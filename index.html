@@ -1,39 +1,370 @@
-<h2>how the bridge works</h2>
-<p>this system is a real-time two-way bridge between discord and roblox. when you run a command in discord, the python bot logs it in a queue. your live roblox server constantly pings the bot's web server every few seconds. once roblox sees a pending command, it pulls it down and executes the moderation action in-game immediately.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eye of MAGIC Docs</title>
+<style>
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: linear-gradient(-45deg, #0d0614, #1a0b2e, #0f172a, #1e112a);
+    background-size: 400% 400%;
+    animation: flow 18s ease infinite;
+    color: #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+@keyframes flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.wrapper {
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 40px;
+    border-radius: 24px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+}
+h1 {
+    text-align: center;
+    margin-top: 0;
+    font-size: 2.8em;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(to right, #f472b6, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+}
+.tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 35px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+    flex-wrap: wrap;
+}
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+}
+.tab-btn:hover {
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.05);
+}
+.tab-btn.active {
+    color: #fff;
+    background: rgba(192, 132, 252, 0.2);
+    box-shadow: inset 0 0 12px rgba(192, 132, 252, 0.1);
+}
+.content-pane {
+    display: none;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.content-pane.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+.cmd-block {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 12px;
+    margin: 20px 0 8px 0;
+    font-family: monospace;
+    font-size: 1.1em;
+    color: #f472b6;
+    overflow-x: auto;
+}
+p {
+    margin-top: 0;
+    line-height: 1.6;
+    color: #cbd5e1;
+    font-size: 1.05em;
+}
+h2 {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+ul {
+    padding-left: 20px;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+li {
+    margin-bottom: 8px;
+}
+.player-bar {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+.player-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9em;
+    transition: background 0.2s;
+}
+.player-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+.track-info {
+    font-size: 0.9em;
+    color: #cbd5e1;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.toast {
+    position: fixed;
+    top: 20px;
+    right: -350px;
+    background: rgba(192, 132, 252, 0.9);
+    color: #0f0614;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 2000;
+}
+.toast.show {
+    right: 20px;
+}
+.toast-sub {
+    font-weight: 400;
+    font-size: 0.85em;
+    margin-top: 4px;
+    opacity: 0.9;
+}
+</style>
+</head>
+<body>
 
-<h2>moderation commands</h2>
+<div class="toast" id="music-toast">
+    <div id="toast-title">Now Playing</div>
+    <div class="toast-sub" id="toast-desc"></div>
+</div>
 
-<div class="cmd-box">mg.ban &lt;username&gt; [reason]</div>
-<p>permanently bans a user globally from the entire game universe.</p>
+<div class="wrapper">
+    <h1>Eye of MAGIC</h1>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('bridge')">System Bridge</button>
+        <button class="tab-btn" onclick="switchTab('moderation')">Moderation</button>
+        <button class="tab-btn" onclick="switchTab('utility')">Utility</button>
+        <button class="tab-btn" onclick="switchTab('console')">Console</button>
+    </div>
 
-<div class="cmd-box">mg.unban &lt;username&gt;</div>
-<p>lifts a global universe ban so the user can rejoin.</p>
+    <div class="content-pane active" id="bridge">
+        <h2>How the Bridge Works</h2>
+        <p>This system acts as a high-speed, live communication bridge linking Discord directly to running Roblox game servers. Commands triggered within Discord do not talk to Roblox directly; instead, they alter a centralized data queue managed by the backend Python application.</p>
+        <p>Every running game instance inside your Roblox universe runs a background script that repeatedly checks this web service. When a new command entry appears in the queue matching that universe, the Roblox server downloads the command payload and applies the moderation logic to the player instantly.</p>
+    </div>
 
-<div class="cmd-box">mg.kick &lt;username&gt; [reason]</div>
-<p>forcefully removes a user from their active server instance.</p>
+    <div class="content-pane" id="moderation">
+        <h2>Moderation Commands</h2>
+        <p>All moderation interactions must run inside authorized Discord channels using the system prefix.</p>
+        
+        <div class="cmd-block">mg.ban &lt;username&gt; [reason]</div>
+        <p>Issues a universal ban blocking the targeted player account from entering any server instance associated with the game universe.</p>
 
-<div class="cmd-box">mg.flag &lt;username&gt; [reason]</div>
-<p>marks a user in the moderation database. when they join a server, their log will be highlighted.</p>
+        <div class="cmd-block">mg.unban &lt;username&gt;</div>
+        <p>Removes a target user from the active global blacklist dataset, enabling them to reconnect cleanly.</p>
 
-<div class="cmd-box">mg.unflag &lt;username&gt;</div>
-<p>removes the database warning flag from a user.</p>
+        <div class="cmd-block">mg.kick &lt;username&gt; [reason]</div>
+        <p>Immediately drops a player's connection from whichever active server instance they currently occupy.</p>
 
-<h2>utility commands</h2>
+        <div class="cmd-block">mg.flag &lt;username&gt; [reason]</div>
+        <p>Appends a specific warning tag to the user configuration file. When this user joins any server instance, a detailed system warning triggers in the administration channel log.</p>
 
-<div class="cmd-box">mg.clear [amount]</div>
-<p>purges discord messages. leaving it blank or doing over 100 clones and deletes the channel for an instant wipe.</p>
+        <div class="cmd-block">mg.unflag &lt;username&gt;</div>
+        <p>Clears existing flags and warnings from the selected account profile storage record.</p>
+    </div>
 
-<div class="cmd-box">mg.help</div>
-<p>shows the quick reference menu in discord.</p>
+    <div class="content-pane" id="utility">
+        <h2>Utility Commands</h2>
+        
+        <div class="cmd-block">mg.clear [amount]</div>
+        <p>Cleans up log channels by removing messages. Specifying no value or an amount greater than 100 triggers an automated room recreation process to completely clear the view instantly.</p>
 
-<h2>host console commands</h2>
-<p>these are typed directly into your computer terminal, not discord.</p>
+        <div class="cmd-block">mg.help</div>
+        <p>Brings up a clean inline summary menu displaying available commands directly inside the active Discord client interface.</p>
+    </div>
 
-<div class="cmd-box">stop</div>
-<p>cleanly shuts down the web server and takes the bot offline.</p>
+    <div class="content-pane" id="console">
+        <h2>Host Console Commands</h2>
+        <p>These instructions must be typed straight into the terminal workspace hosting the executable script process. They do not operate through Discord channels.</p>
 
-<div class="cmd-box">st</div>
-<p>prints the status type reference sheet to your terminal.</p>
+        <div class="cmd-block">stop</div>
+        <p>Safely terminates the live hosting thread, releases web binding allocations on port 8080, and breaks the active connection profile link with Discord.</p>
 
-<div class="cmd-box">status &lt;type&gt; &lt;message&gt;</div>
-<p>updates the bot's custom discord activity status.</p>
+        <div class="cmd-block">st</div>
+        <p>Prints a structured matrix directly inside the command line displaying all valid status codes and layout formats.</p>
+
+        <div class="cmd-block">status &lt;type&gt; &lt;message&gt;</div>
+        <p>Alters the live activity presence text string tied to the application profile window on Discord.</p>
+        <ul>
+            <li>0 or playing -> Displays as: Playing [Message]</li>
+            <li>1 or streaming -> Displays as: Streaming [Message]</li>
+            <li>2 or listening -> Displays as: Listening to [Message]</li>
+            <li>3 or watching -> Displays as: Watching [Message]</li>
+            <li>5 or competing -> Displays as: Competing in [Message]</li>
+        </ul>
+    </div>
+</div>
+
+<div class="player-bar">
+    <button class="player-btn" id="play-btn" onclick="toggleMusic()">Play Music</button>
+    <button class="player-btn" onclick="skipTrack()">Skip</button>
+    <div class="track-info" id="track-display">Music Offline</div>
+</div>
+
+<audio id="bg-audio"></audio>
+
+<script>
+const tracks = [
+    { source: "audio/MAGIC.mp3", title: "MAGIC", credit: "Written and sang by Ado" }
+];
+
+let currentTrackIndex = -1;
+const audioEl = document.getElementById("bg-audio");
+const playBtn = document.getElementById("play-btn");
+const trackDisplay = document.getElementById("track-display");
+const toastEl = document.getElementById("music-toast");
+const toastDesc = document.getElementById("toast-desc");
+
+let soundCtx = null;
+
+function initSound() {
+    if (!soundCtx) {
+        soundCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playBeep(freq, duration) {
+    initSound();
+    if (!soundCtx) return;
+    const osc = soundCtx.createOscillator();
+    const vol = soundCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, soundCtx.currentTime);
+    vol.gain.setValueAtTime(0.05, soundCtx.currentTime);
+    vol.gain.exponentialRampToValueAtTime(0.001, soundCtx.currentTime + duration);
+    osc.connect(vol);
+    vol.connect(soundCtx.destination);
+    osc.start();
+    osc.stop(soundCtx.currentTime + duration);
+}
+
+function switchTab(tabId) {
+    playBeep(550, 0.08); 
+    document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+    document.querySelectorAll(".content-pane").forEach(pane => {
+        pane.classList.remove("active");
+    });
+    
+    const event = window.event;
+    if (event && event.target) {
+        event.target.classList.add("active");
+    }
+    
+    const targetPane = document.getElementById(tabId);
+    targetPane.classList.add("active");
+}
+
+function pickRandomTrack() {
+    if (tracks.length === 0) return;
+    let nextIndex = Math.floor(Math.random() * tracks.length);
+    if (tracks.length > 1 && nextIndex === currentTrackIndex) {
+        nextIndex = (nextIndex + 1) % tracks.length;
+    }
+    currentTrackIndex = nextIndex;
+    const track = tracks[currentTrackIndex];
+    audioEl.src = track.source;
+    trackDisplay.textContent = track.title;
+    
+    toastDesc.textContent = track.title + " - " + track.credit;
+    toastEl.classList.add("show");
+    setTimeout(() => {
+        toastEl.classList.remove("show");
+    }, 4500);
+}
+
+function toggleMusic() {
+    playBeep(440, 0.1);
+    if (currentTrackIndex === -1) {
+        pickRandomTrack();
+    }
+    if (audioEl.paused) {
+        audioEl.play().catch(() => {});
+        playBtn.textContent = "Pause";
+    } else {
+        audioEl.pause();
+        playBtn.textContent = "Play";
+    }
+}
+
+function skipTrack() {
+    playBeep(600, 0.06);
+    pickRandomTrack();
+    audioEl.play().catch(() => {});
+    playBtn.textContent = "Pause";
+}
+
+audioEl.addEventListener("ended", () => {
+    pickRandomTrack();
+    audioEl.play().catch(() => {});
+});
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("mouseenter", () => {
+        playBeep(800, 0.02);
+    });
+});
+</script>
+
+</body>
+</html>
