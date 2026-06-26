@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eye of MAGIC Docs</title>
 <style>
-/* Core Theming */
 :root {
     --bg-dark: #070000;
     --bg-mid: #1a0000;
@@ -28,9 +27,9 @@ body {
     padding: 60px 20px;
     box-sizing: border-box;
     overflow-x: hidden;
+    cursor: url('cursor.png'), auto;
 }
 
-/* Subtle background grid pattern */
 body::before {
     content: '';
     position: fixed;
@@ -42,39 +41,12 @@ body::before {
     pointer-events: none;
 }
 
-/* Initialization Overlay */
-#init-screen {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: var(--bg-dark);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
 }
 
-#init-btn {
-    background: transparent;
-    border: 1px solid var(--accent-main);
-    color: var(--accent-main);
-    padding: 15px 40px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    letter-spacing: 4px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(230, 0, 0, 0.1) inset;
-}
-
-#init-btn:hover {
-    background: var(--accent-main);
-    color: #000;
-    box-shadow: 0 0 30px var(--accent-glow);
-}
-
-/* Main Container */
 .wrapper {
     background: rgba(15, 0, 0, 0.75);
     backdrop-filter: blur(10px);
@@ -86,6 +58,13 @@ body::before {
     width: 100%;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes textGlow {
+    0% { text-shadow: 0 0 10px rgba(230,0,0,0.2); }
+    50% { text-shadow: 0 0 25px rgba(230,0,0,0.6); }
+    100% { text-shadow: 0 0 10px rgba(230,0,0,0.2); }
 }
 
 h1 {
@@ -97,10 +76,9 @@ h1 {
     color: var(--text-main);
     text-transform: uppercase;
     margin-bottom: 30px;
-    text-shadow: 0 0 20px var(--accent-glow);
+    animation: textGlow 3s infinite;
 }
 
-/* Navigation Tabs */
 .tabs {
     display: flex;
     gap: 8px;
@@ -118,7 +96,7 @@ h1 {
     padding: 8px 24px;
     font-size: 0.95em;
     font-weight: 600;
-    cursor: pointer;
+    cursor: url('hover.png'), pointer;
     border-radius: 2px;
     transition: all 0.2s ease;
     text-transform: uppercase;
@@ -136,18 +114,12 @@ h1 {
     background: rgba(230, 0, 0, 0.08);
 }
 
-/* Content Area */
 .content-pane {
     display: none;
-    opacity: 0;
-    transform: translateY(5px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .content-pane.active {
     display: block;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 h2 {
@@ -166,7 +138,11 @@ p, ul {
     font-size: 1.05em;
 }
 
-/* Command Blocks */
+@keyframes slideRight {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 .cmd-block {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -180,7 +156,16 @@ p, ul {
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
-/* Music Player Bar */
+.content-pane.active .cmd-block {
+    opacity: 0;
+    animation: slideRight 0.4s ease forwards;
+}
+.content-pane.active .cmd-block:nth-of-type(1) { animation-delay: 0.1s; }
+.content-pane.active .cmd-block:nth-of-type(2) { animation-delay: 0.2s; }
+.content-pane.active .cmd-block:nth-of-type(3) { animation-delay: 0.3s; }
+.content-pane.active .cmd-block:nth-of-type(4) { animation-delay: 0.4s; }
+.content-pane.active .cmd-block:nth-of-type(5) { animation-delay: 0.5s; }
+
 .player-bar {
     position: fixed;
     bottom: 20px;
@@ -204,7 +189,7 @@ p, ul {
     color: var(--accent-main);
     padding: 6px 16px;
     border-radius: 2px;
-    cursor: pointer;
+    cursor: url('hover.png'), pointer;
     font-weight: 600;
     font-size: 0.85em;
     text-transform: uppercase;
@@ -230,11 +215,11 @@ p, ul {
     gap: 10px;
 }
 
-/* Custom Volume Slider */
 input[type=range] {
     -webkit-appearance: none;
     width: 100px;
     background: transparent;
+    cursor: url('hover.png'), pointer;
 }
 input[type=range]:focus {
     outline: none;
@@ -242,7 +227,6 @@ input[type=range]:focus {
 input[type=range]::-webkit-slider-runnable-track {
     width: 100%;
     height: 4px;
-    cursor: pointer;
     background: rgba(230, 0, 0, 0.2);
     border-radius: 2px;
 }
@@ -251,14 +235,12 @@ input[type=range]::-webkit-slider-thumb {
     width: 12px;
     border-radius: 50%;
     background: var(--accent-main);
-    cursor: pointer;
     -webkit-appearance: none;
     margin-top: -4px;
 }
 input[type=range]::-moz-range-track {
     width: 100%;
     height: 4px;
-    cursor: pointer;
     background: rgba(230, 0, 0, 0.2);
     border-radius: 2px;
 }
@@ -267,11 +249,9 @@ input[type=range]::-moz-range-thumb {
     width: 12px;
     border-radius: 50%;
     background: var(--accent-main);
-    cursor: pointer;
     border: none;
 }
 
-/* Toast Notification */
 .toast {
     position: fixed;
     top: 20px;
@@ -305,12 +285,8 @@ input[type=range]::-moz-range-thumb {
 </head>
 <body>
 
-<div id="init-screen">
-    <button id="init-btn" onclick="initializeSystem()">System Start</button>
-</div>
-
 <div class="toast" id="music-toast">
-    <div id="toast-title">Audio Target Acquired</div>
+    <div id="toast-title"></div>
     <div class="toast-sub" id="toast-desc"></div>
 </div>
 
@@ -383,7 +359,7 @@ input[type=range]::-moz-range-thumb {
 </div>
 
 <div class="player-bar">
-    <button class="player-btn" id="play-btn" onclick="toggleMusic()">Pause</button>
+    <button class="player-btn" id="play-btn" onclick="toggleMusic()">Play</button>
     <div class="track-info" id="track-display">MAGIC</div>
     <div class="volume-container">
         <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.5">
@@ -397,38 +373,25 @@ const track = { source: "audio/MAGIC.mp3", title: "MAGIC", credit: "Written and 
 
 const audioEl = document.getElementById("bg-audio");
 const playBtn = document.getElementById("play-btn");
-const trackDisplay = document.getElementById("track-display");
 const toastEl = document.getElementById("music-toast");
+const toastTitle = document.getElementById("toast-title");
 const toastDesc = document.getElementById("toast-desc");
 const volSlider = document.getElementById("vol-slider");
 
 let targetVolume = 0.5;
 let fadeInterval = null;
+let hasStarted = false;
+let toastTimeout = null;
 
-// Sets up the audio but keeps volume at 0 initially
 audioEl.src = track.source;
 audioEl.volume = 0;
 
-function initializeSystem() {
-    const initScreen = document.getElementById('init-screen');
-    initScreen.style.opacity = '0';
-    setTimeout(() => {
-        initScreen.style.visibility = 'hidden';
-    }, 800);
-
-    audioEl.play().then(() => {
-        fadeAudio(targetVolume, 1000); // 1-second fade in
-        showToast();
-    }).catch(err => {
-        console.log("Audio playback failed:", err);
-        playBtn.textContent = "Play";
-    });
-}
-
-function showToast() {
+function showToast(status) {
+    toastTitle.textContent = status;
     toastDesc.textContent = track.title + " - " + track.credit;
     toastEl.classList.add("show");
-    setTimeout(() => {
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
         toastEl.classList.remove("show");
     }, 4500);
 }
@@ -462,23 +425,52 @@ function fadeAudio(targetVol, duration) {
     });
 }
 
+function startMusicEngine() {
+    if (hasStarted) return;
+    audioEl.play().then(() => {
+        hasStarted = true;
+        fadeAudio(targetVolume, 1000);
+        playBtn.textContent = "Pause";
+        showToast("Now Playing");
+    }).catch(() => {
+        hasStarted = false;
+    });
+}
+
+window.onload = () => {
+    audioEl.play().then(() => {
+        hasStarted = true;
+        fadeAudio(targetVolume, 1000);
+        playBtn.textContent = "Pause";
+        showToast("Now Playing");
+    }).catch(() => {
+        document.addEventListener('click', startMusicEngine, { once: true });
+    });
+};
+
 function toggleMusic() {
+    if (!hasStarted) {
+        startMusicEngine();
+        return;
+    }
+    
     if (audioEl.paused) {
         audioEl.play();
         playBtn.textContent = "Pause";
-        fadeAudio(targetVolume, 600); // Quick fade in
-        showToast();
+        fadeAudio(targetVolume, 600);
+        showToast("Resumed");
     } else {
         playBtn.textContent = "Play";
         fadeAudio(0, 600).then(() => {
             audioEl.pause();
+            showToast("Paused");
         });
     }
 }
 
 volSlider.addEventListener('input', (e) => {
     targetVolume = parseFloat(e.target.value);
-    if (!audioEl.paused) {
+    if (!audioEl.paused && hasStarted) {
         audioEl.volume = targetVolume;
     }
 });
@@ -498,6 +490,5 @@ function switchTab(tabId) {
     targetPane.classList.add("active");
 }
 </script>
-
 </body>
 </html>
