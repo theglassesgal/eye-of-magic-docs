@@ -24,7 +24,7 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 60px 20px 150px 20px; /* Extra bottom padding for mobile player bar */
+    padding: 60px 20px 150px 20px; 
     box-sizing: border-box;
     overflow-x: hidden;
     cursor: url('cursor.png'), auto;
@@ -60,18 +60,13 @@ body::after {
 
 #eye-container {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-    pointer-events: none;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1; pointer-events: none;
 }
 
 .eye-img {
     position: absolute;
-    width: 45px;
-    height: auto;
+    width: 45px; height: auto;
     transform-origin: center center;
     filter: drop-shadow(0 0 8px rgba(230, 0, 0, 0.6));
     transition: filter 0.3s ease;
@@ -79,13 +74,10 @@ body::after {
 
 #visualizer {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100vw;
-    height: 150px;
-    z-index: 500;
-    pointer-events: none;
-    opacity: 0.75;
+    bottom: 0; left: 0;
+    width: 100vw; height: 150px;
+    z-index: 500; pointer-events: none;
+    opacity: 0.75; display: block;
 }
 
 @keyframes floatAndPulse {
@@ -95,6 +87,7 @@ body::after {
 }
 
 .wrapper {
+    position: relative;
     background: rgba(12, 0, 0, 0.85);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(230, 0, 0, 0.2);
@@ -108,6 +101,27 @@ body::after {
     z-index: 10;
 }
 
+/* Discord Login Button */
+#login-btn {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--accent-main);
+    color: var(--accent-main);
+    padding: 6px 14px;
+    font-size: 0.8em;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: url('hover.png'), pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    z-index: 50;
+}
+#login-btn:hover {
+    background: var(--accent-main);
+    color: #000;
+}
+
 @keyframes textGlow {
     0% { text-shadow: 0 0 10px rgba(230,0,0,0.2); }
     50% { text-shadow: 0 0 25px rgba(230,0,0,0.6); }
@@ -115,61 +129,50 @@ body::after {
 }
 
 h1 {
-    text-align: center;
-    margin-top: 0;
-    font-size: 2.5em;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: var(--text-main);
-    text-transform: uppercase;
-    margin-bottom: 30px;
-    animation: textGlow 3s infinite;
+    text-align: center; margin-top: 0; font-size: 2.5em;
+    font-weight: 800; letter-spacing: 2px;
+    color: var(--text-main); text-transform: uppercase;
+    margin-bottom: 30px; animation: textGlow 3s infinite;
 }
 
 .tabs {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 35px;
-    border-bottom: 1px solid rgba(230, 0, 0, 0.2);
-    padding-bottom: 15px;
-    flex-wrap: wrap;
+    display: flex; gap: 8px; justify-content: center;
+    margin-bottom: 35px; border-bottom: 1px solid rgba(230, 0, 0, 0.2);
+    padding-bottom: 15px; flex-wrap: wrap;
 }
 
 .tab-btn {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-dim);
-    padding: 8px 24px;
-    font-size: 0.95em;
-    font-weight: 600;
-    cursor: url('hover.png'), pointer;
-    border-radius: 2px;
+    background: transparent; border: 1px solid transparent;
+    color: var(--text-dim); padding: 8px 24px;
+    font-size: 0.95em; font-weight: 600;
+    cursor: url('hover.png'), pointer; border-radius: 2px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    text-transform: uppercase; letter-spacing: 1px;
 }
 
 .tab-btn:hover { color: var(--text-main); background: rgba(230, 0, 0, 0.05); }
 .tab-btn.active { color: var(--accent-main); border: 1px solid rgba(230, 0, 0, 0.3); background: rgba(230, 0, 0, 0.08); }
+#console-tab-btn { display: none; } /* Hidden by default until authenticated */
 
 .content-pane { display: none; }
-.content-pane.active { display: block; }
+.content-pane.active { display: block; animation: paneFadeIn 0.3s ease; }
+
+@keyframes paneFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 h2 {
-    font-size: 1.4em;
-    font-weight: 600;
-    color: var(--text-main);
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-left: 3px solid var(--accent-main);
-    padding-left: 10px;
+    font-size: 1.4em; font-weight: 600; color: var(--text-main);
+    margin-top: 0; margin-bottom: 15px;
+    border-left: 3px solid var(--accent-main); padding-left: 10px;
 }
 
 p, ul { line-height: 1.6; color: var(--text-dim); font-size: 1.05em; }
 
+/* Rebuilt Command Animations */
 @keyframes slideRight {
-    from { opacity: 0; transform: translateX(-15px); }
+    from { opacity: 0; transform: translateX(-20px); }
     to { opacity: 1; transform: translateX(0); }
 }
 
@@ -177,67 +180,70 @@ p, ul { line-height: 1.6; color: var(--text-dim); font-size: 1.05em; }
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-left: 2px solid var(--accent-main);
-    padding: 14px 18px;
-    border-radius: 2px;
+    padding: 14px 18px; border-radius: 2px;
     margin: 25px 0 10px 0;
     font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 1.05em;
-    color: var(--text-main);
+    font-size: 1.05em; color: var(--text-main);
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
     overflow-x: auto;
 }
 
 .content-pane.active .cmd-block {
-    opacity: 0;
-    animation: slideRight 0.4s ease forwards;
+    animation: slideRight 0.4s ease backwards; /* backwards fill mode is critical here */
 }
+.content-pane.active .cmd-block:nth-of-type(1) { animation-delay: 0.05s; }
+.content-pane.active .cmd-block:nth-of-type(2) { animation-delay: 0.15s; }
+.content-pane.active .cmd-block:nth-of-type(3) { animation-delay: 0.25s; }
+.content-pane.active .cmd-block:nth-of-type(4) { animation-delay: 0.35s; }
+.content-pane.active .cmd-block:nth-of-type(5) { animation-delay: 0.45s; }
+.content-pane.active .cmd-block:nth-of-type(6) { animation-delay: 0.55s; }
 
 .player-bar {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
+    position: fixed; bottom: 20px; left: 50%;
     transform: translateX(-50%);
-    background: rgba(10, 0, 0, 0.9);
-    backdrop-filter: blur(10px);
+    background: rgba(10, 0, 0, 0.9); backdrop-filter: blur(10px);
     border: 1px solid rgba(230, 0, 0, 0.2);
-    padding: 12px 24px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
+    padding: 12px 24px; border-radius: 4px;
+    display: flex; align-items: center; gap: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    z-index: 1000;
-    width: max-content;
-    max-width: 95%;
+    z-index: 1000; width: max-content; max-width: 95%;
 }
 
 .player-btn {
-    background: transparent;
-    border: 1px solid var(--accent-main);
-    color: var(--accent-main);
-    padding: 6px 16px;
-    border-radius: 2px;
-    cursor: url('hover.png'), pointer;
-    font-weight: 600;
-    text-transform: uppercase;
-    transition: all 0.2s;
+    background: transparent; border: 1px solid var(--accent-main);
+    color: var(--accent-main); padding: 6px 16px; border-radius: 2px;
+    cursor: url('hover.png'), pointer; font-weight: 600;
+    text-transform: uppercase; transition: all 0.2s;
 }
 
 .player-btn:hover { background: var(--accent-main); color: #000; }
 
 .track-info { 
-    font-size: 0.9em; 
-    color: var(--text-dim); 
-    min-width: 150px; 
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.9em; color: var(--text-dim); min-width: 150px; 
+    text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; cursor: url('hover.png'), pointer; }
-input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(230, 0, 0, 0.2); border-radius: 2px; }
-input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; background: var(--accent-main); -webkit-appearance: none; margin-top: -4px; }
+/* Rebuilt Slider Mechanics */
+input[type=range] { 
+    -webkit-appearance: none; width: 100px; background: transparent; cursor: url('hover.png'), pointer; 
+}
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track { 
+    width: 100%; height: 6px; background: rgba(230, 0, 0, 0.3); border-radius: 3px; 
+    border: 1px solid rgba(0,0,0,0.5);
+}
+input[type=range]::-webkit-slider-thumb { 
+    height: 16px; width: 16px; background: var(--accent-main); 
+    -webkit-appearance: none; margin-top: -6px; border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-main);
+}
+input[type=range]::-moz-range-track {
+    width: 100%; height: 6px; background: rgba(230, 0, 0, 0.3); border-radius: 3px;
+}
+input[type=range]::-moz-range-thumb {
+    height: 16px; width: 16px; background: var(--accent-main);
+    border: none; border-radius: 50%; box-shadow: 0 0 10px var(--accent-main);
+}
 
 .toast {
     position: fixed; top: 20px; right: -400px; background: rgba(15, 0, 0, 0.95);
@@ -251,35 +257,25 @@ input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; background:
 #toast-title { font-weight: 700; text-transform: uppercase; font-size: 0.85em; color: var(--accent-main); }
 .toast-sub { font-size: 0.9em; margin-top: 6px; color: var(--text-dim); }
 
-/* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
     body { padding: 30px 15px 160px 15px; }
-    .wrapper { padding: 25px 15px; }
-    h1 { font-size: 2em; }
+    .wrapper { padding: 40px 15px 25px 15px; } /* Room for login btn */
+    h1 { font-size: 2em; margin-top: 20px; }
     .tabs { gap: 4px; }
     .tab-btn { padding: 8px 12px; font-size: 0.85em; flex-grow: 1; text-align: center; }
     
     .player-bar {
-        width: 95%;
-        padding: 12px 15px;
-        gap: 12px;
-        justify-content: space-between;
+        width: 95%; padding: 12px 15px; gap: 12px; justify-content: space-between;
     }
     .track-info { min-width: 0; flex-grow: 1; }
     input[type=range] { width: 70px; }
     
     .toast {
-        right: auto;
-        left: 50%;
-        transform: translateX(-50%);
-        top: -150px;
-        width: 90%;
-        max-width: 350px;
+        right: auto; left: 50%; transform: translateX(-50%);
+        top: -150px; width: 90%; max-width: 350px;
         transition: top 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     .toast.show { right: auto; top: 20px; }
-    
-    #visualizer { height: 100px; opacity: 0.5; }
 }
 </style>
 </head>
@@ -291,12 +287,14 @@ input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; background:
 <div class="toast" id="music-toast"><div id="toast-title"></div><div class="toast-sub" id="toast-desc"></div></div>
 
 <div class="wrapper">
+    <button id="login-btn" onclick="initiateDiscordLogin()">Login</button>
+    
     <h1>Eye of MAGIC</h1>
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('bridge')">Bridge</button>
         <button class="tab-btn" onclick="switchTab('moderation')">Moderation</button>
         <button class="tab-btn" onclick="switchTab('utility')">Utility</button>
-        <button class="tab-btn" onclick="switchTab('console')">Console</button>
+        <button class="tab-btn" id="console-tab-btn" onclick="switchTab('console')">Console</button>
     </div>
 
     <div class="content-pane active" id="bridge">
@@ -310,16 +308,27 @@ input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; background:
         <p>Issues a persistent universe ban.</p>
         <div class="cmd-block">mg.kick &lt;username&gt; [reason]</div>
         <p>Forcefully terminates the user's connection.</p>
+        <div class="cmd-block">mg.unban &lt;username&gt;</div>
+        <p>Purges the target user from the global blacklist.</p>
+        <div class="cmd-block">mg.flag &lt;username&gt; [reason]</div>
+        <p>Applies an administrative warning tag.</p>
     </div>
 
     <div class="content-pane" id="utility">
         <h2>System Utilities</h2>
         <div class="cmd-block">mg.clear [amount]</div>
         <p>Purges channel message logs using automated recreation.</p>
+        <div class="cmd-block">mg.help</div>
+        <p>Retrieves the localized command reference index.</p>
     </div>
 
     <div class="content-pane" id="console">
         <h2>Host Terminal Directives</h2>
+        <p>These commands are strictly for the local host terminal.</p>
+        <div class="cmd-block">stop</div>
+        <p>Initiates a safe shutdown sequence.</p>
+        <div class="cmd-block">st</div>
+        <p>Outputs the valid presence status codes.</p>
         <div class="cmd-block">status &lt;type&gt; &lt;message&gt;</div>
         <p>Modifies the rich presence activity string.</p>
     </div>
@@ -334,27 +343,86 @@ input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; background:
 <audio id="bg-audio" loop crossorigin="anonymous"></audio>
 
 <script>
+// --- CORE CONFIGURATION ---
 const track = { source: "audio/MAGIC.mp3", title: "MAGIC", credit: "Written and sang by Ado" };
+
+// Replace this with your actual Application Client ID from the Discord Developer Portal
+const DISCORD_CLIENT_ID = "1520223263501062195"; 
+
+
+// --- GLOBAL VARIABLES ---
 const audioEl = document.getElementById("bg-audio");
 const playBtn = document.getElementById("play-btn");
 const toastEl = document.getElementById("music-toast");
 const toastTitle = document.getElementById("toast-title");
 const toastDesc = document.getElementById("toast-desc");
+const volSlider = document.getElementById("vol-slider");
 
 let hasStarted = false;
+let targetVolume = 0.5;
+let fadeInterval = null;
 audioEl.src = track.source;
-audioEl.volume = 0.5;
+audioEl.volume = 0; // Start at 0 for fade in
 
-// --- Audio Visualizer Logic ---
+// --- DISCORD OAUTH2 LOGIC ---
+function initiateDiscordLogin() {
+    if (DISCORD_CLIENT_ID === "YOUR_CLIENT_ID_HERE") {
+        showToast("Setup Required");
+        toastDesc.textContent = "You must enter your Client ID in the script first.";
+        return;
+    }
+    const currentUrl = window.location.href.split('#')[0];
+    const authUrl = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(currentUrl)}&scope=identify`;
+    window.location.href = authUrl;
+}
+
+function verifyDiscordLogin() {
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = fragment.get('access_token');
+    
+    if (accessToken) {
+        window.history.replaceState({}, document.title, window.location.pathname); // Clean URL
+        
+        fetch('https://discord.com/api/users/@me', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .then(res => res.json())
+        .then(user => {
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.textContent = `User: ${user.username}`;
+            loginBtn.style.pointerEvents = 'none'; // Disable clicking again
+            
+            // SECURITY CHECK: 
+            if (user.id === '1328528571039223860') {
+                document.getElementById('console-tab-btn').style.display = 'inline-block';
+                showToast("Authentication Success");
+                toastDesc.textContent = "Host privileges granted. Console unlocked.";
+            } else {
+                showToast("Access Denied");
+                toastDesc.textContent = "You do not have host privileges.";
+            }
+        }).catch(console.error);
+    }
+}
+window.addEventListener('load', verifyDiscordLogin);
+
+
+// --- AUDIO VISUALIZER LOGIC ---
 let audioCtx = null;
 let analyser = null;
 let sourceNode = null;
 const canvas = document.getElementById('visualizer');
 const canvasCtx = canvas.getContext('2d');
 
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = 150;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); 
+
 function initVisualizer() {
     if (audioCtx) return; 
-    
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
     
@@ -368,12 +436,6 @@ function initVisualizer() {
 
     function draw() {
         requestAnimationFrame(draw);
-        
-        if(canvas.width !== window.innerWidth) {
-            canvas.width = window.innerWidth;
-            canvas.height = 150;
-        }
-
         analyser.getByteFrequencyData(dataArray);
         canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -384,14 +446,41 @@ function initVisualizer() {
         for (let i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i] * 0.6;
             canvasCtx.fillStyle = `rgba(230, 0, 0, ${(barHeight / 100)})`;
-            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
             x += barWidth;
         }
     }
     draw();
 }
 
-// --- Audio Controls & Toggles ---
+// --- FADE MECHANICS & AUDIO CONTROLS ---
+function fadeAudio(targetVol, duration) {
+    return new Promise(resolve => {
+        clearInterval(fadeInterval);
+        const startVol = audioEl.volume;
+        const change = targetVol - startVol;
+        const steps = 30; 
+        const stepTime = duration / steps;
+        let currentStep = 0;
+
+        if (change === 0) return resolve();
+
+        fadeInterval = setInterval(() => {
+            currentStep++;
+            let newVol = startVol + (change * (currentStep / steps));
+            if(newVol > 1) newVol = 1;
+            if(newVol < 0) newVol = 0;
+            audioEl.volume = newVol;
+
+            if (currentStep >= steps) {
+                clearInterval(fadeInterval);
+                audioEl.volume = targetVol;
+                resolve();
+            }
+        }, stepTime);
+    });
+}
+
 function showToast(status) {
     toastTitle.textContent = status;
     toastDesc.textContent = track.title + " - " + track.credit;
@@ -403,37 +492,49 @@ function startMusic() {
     if (hasStarted) return;
     initVisualizer(); 
     
-    if(audioCtx.state === 'suspended') {
+    if(audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
     
     audioEl.play().then(() => {
         hasStarted = true;
         playBtn.textContent = "Pause";
-        showToast("Now Playing");
+        fadeAudio(targetVolume, 1000); // 1 sec fade in
+        showToast("Audio Target Acquired");
     }).catch(() => {});
 }
 
-// Mobile and Desktop interaction triggers
+// Global interaction listeners to bypass autoplay blocks
 ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'].forEach(evt => document.addEventListener(evt, startMusic, { once: true }));
 
 function toggleMusic() {
+    if (!hasStarted) {
+        startMusic();
+        return;
+    }
     if (audioEl.paused) {
         audioEl.play();
         playBtn.textContent = "Pause";
-        showToast("Resumed");
+        fadeAudio(targetVolume, 500); 
+        showToast("Audio Playback Resumed");
     } else {
-        audioEl.pause();
         playBtn.textContent = "Play";
-        showToast("Paused");
+        fadeAudio(0, 500).then(() => {
+            audioEl.pause();
+            showToast("Audio Playback Paused");
+        });
     }
 }
 
-document.getElementById("vol-slider").addEventListener('input', (e) => {
-    audioEl.volume = parseFloat(e.target.value);
+volSlider.addEventListener('input', (e) => {
+    targetVolume = parseFloat(e.target.value);
+    if (!audioEl.paused && hasStarted) {
+        audioEl.volume = targetVolume;
+    }
 });
 
-// --- Eye Logic (Mobile Safe) ---
+
+// --- DYNAMIC EYE LOGIC ---
 const eyeContainer = document.getElementById('eye-container');
 const eyesPerSide = 5;
 const eyes = [];
@@ -444,13 +545,11 @@ function spawnEyes() {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     
-    // If mobile/tablet, spawn 6 eyes scattered behind the wrapper
     if (screenWidth < 900) {
         for (let i = 0; i < 6; i++) {
             createEye(Math.random() * (screenWidth - 50), screenHeight);
         }
     } else {
-        // Desktop: 5 Left, 5 Right
         const wrapperWidth = 840; 
         let leftZoneMax = (screenWidth / 2) - (wrapperWidth / 2) - 60;
         if (leftZoneMax < 40) leftZoneMax = 40; 
@@ -480,16 +579,8 @@ function createEye(xPos, screenHeight) {
 spawnEyes();
 window.addEventListener('resize', spawnEyes);
 
-// Desktop mouse tracking
-document.addEventListener('mousemove', (e) => {
-    updateEyeRotation(e.clientX, e.clientY);
-});
-
-// Mobile touch tracking
-document.addEventListener('touchmove', (e) => {
-    const touch = e.touches[0];
-    updateEyeRotation(touch.clientX, touch.clientY);
-}, { passive: true });
+document.addEventListener('mousemove', (e) => updateEyeRotation(e.clientX, e.clientY));
+document.addEventListener('touchmove', (e) => updateEyeRotation(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
 
 function updateEyeRotation(targetX, targetY) {
     eyes.forEach(eye => {
