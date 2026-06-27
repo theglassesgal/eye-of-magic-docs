@@ -346,10 +346,30 @@ input[type=range]::-moz-range-thumb {
     </div>
 
     <div class="tabs">
+        <button class="tab-btn" onclick="switchTab('dashboard')">Dashboard</button>
         <button class="tab-btn active" onclick="switchTab('bridge')">Bridge</button>
         <button class="tab-btn" onclick="switchTab('moderation')">Moderation</button>
         <button class="tab-btn" onclick="switchTab('utility')">Utility</button>
         <button class="tab-btn" id="console-tab-btn" onclick="switchTab('console')">Console</button>
+    </div>
+
+    <div class="content-pane" id="dashboard">
+        <h2>Server Integration</h2>
+        <p>Deploy the Eye of MAGIC bridge to your own community.</p>
+        
+        <a href="https://discord.com/oauth2/authorize?client_id=1520223263501062195&permissions=8&scope=bot" target="_blank" style="text-decoration: none;">
+            <div class="cmd-block" style="text-align: center; cursor: url('hover.png'), pointer; border-color: var(--accent-main); background: rgba(230, 0, 0, 0.1);">
+                [ + ] ADD BOT TO DISCORD SERVER
+            </div>
+        </a>
+
+        <p><strong>Setup Instructions:</strong></p>
+        <ul>
+            <li>Invite the bot using the portal above.</li>
+            <li>In your Discord server, run <code>mg.setlog #channel-name</code> to bind your logging feed.</li>
+            <li>Run <code>mg.genscript</code> to generate a unique, authenticated bridge script.</li>
+            <li>Place the generated script into ServerScriptService inside Roblox Studio.</li>
+        </ul>
     </div>
 
     <div class="content-pane active" id="bridge">
@@ -404,7 +424,7 @@ input[type=range]::-moz-range-thumb {
 <script>
 const track = { source: "audio/MAGIC.mp3", title: "MAGIC", credit: "Written and sang by Ado" };
 const DISCORD_CLIENT_ID = "1520223263501062195"; 
-const NGROK_URL = "https://landfall-unmoving-hexagram.ngrok-free.dev";
+const NGROK_URL = "YOUR_NGROK_URL_HERE"; 
 
 const audioEl = document.getElementById("bg-audio");
 const playBtn = document.getElementById("play-btn");
