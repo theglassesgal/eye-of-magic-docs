@@ -423,34 +423,45 @@ audioEl.volume = 0;
 function checkBotStatus() {
     const dot = document.getElementById("status-dot");
     const text = document.getElementById("status-text");
-    if(NGROK_URL === "YOUR_NGROK_URL_HERE") {
-        dot.className = "status-dot offline";
+    
+    if(NGROK_URL === "YOUR_NGROK_URL_HERE" || NGROK_URL === "") {
+        dot.className = "offline";
         text.className = "offline";
-        text.textContent = "Offline";
+        text.textContent = "Offline (Setup Req)";
         return;
     }
-    fetch(`${NGROK_URL}/status`)
-        .then(res => res.json())
-        .then(data => {
-            dot.className = "";
-            text.className = "";
-            if (data.status === "online") {
-                dot.classList.add("online");
-                text.classList.add("online");
-                text.textContent = "Online";
-            } else if (data.status === "maintenance") {
-                dot.classList.add("maintenance");
-                text.classList.add("maintenance");
-                text.textContent = "Maintenance";
-            }
-        })
-        .catch(() => {
-            dot.className = "";
-            text.className = "";
-            dot.classList.add("offline");
-            text.classList.add("offline");
-            text.textContent = "Offline";
-        });
+
+    fetch(`${NGROK_URL}/status`, {
+        method: "GET",
+        headers: {
+            "ngrok-skip-browser-warning": "69420"
+        }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+    })
+    .then(data => {
+        dot.className = "";
+        text.className = "";
+        if (data.status === "online") {
+            dot.classList.add("online");
+            text.classList.add("online");
+            text.textContent = "Online";
+        } else if (data.status === "maintenance") {
+            dot.classList.add("maintenance");
+            text.classList.add("maintenance");
+            text.textContent = "Maintenance";
+        }
+    })
+    .catch((err) => {
+        console.error("Status fetch failed:", err);
+        dot.className = "";
+        text.className = "";
+        dot.classList.add("offline");
+        text.classList.add("offline");
+        text.textContent = "Offline";
+    });
 }
 setInterval(checkBotStatus, 10000);
 window.addEventListener('load', checkBotStatus);
