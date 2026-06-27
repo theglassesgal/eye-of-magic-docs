@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Eye of MAGIC Docs</title>
 <style>
 :root {
@@ -24,7 +24,7 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 60px 20px;
+    padding: 60px 20px 150px 20px; /* Extra bottom padding for mobile player bar */
     box-sizing: border-box;
     overflow-x: hidden;
     cursor: url('cursor.png'), auto;
@@ -77,19 +77,21 @@ body::after {
     transition: filter 0.3s ease;
 }
 
+#visualizer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 150px;
+    z-index: 500;
+    pointer-events: none;
+    opacity: 0.75;
+}
+
 @keyframes floatAndPulse {
-    0% { 
-        transform: translateY(0px); 
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 0, 0, 0.1); 
-    }
-    50% { 
-        transform: translateY(-8px); 
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(230, 0, 0, 0.3); 
-    }
-    100% { 
-        transform: translateY(0px); 
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 0, 0, 0.1); 
-    }
+    0% { transform: translateY(0px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 0, 0, 0.1); }
+    50% { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(230, 0, 0, 0.3); }
+    100% { transform: translateY(0px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 0, 0, 0.1); }
 }
 
 .wrapper {
@@ -103,6 +105,7 @@ body::after {
     width: 100%;
     box-sizing: border-box;
     animation: floatAndPulse 6s ease-in-out infinite;
+    z-index: 10;
 }
 
 @keyframes textGlow {
@@ -145,40 +148,13 @@ h1 {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
     letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
 }
 
-.tab-btn::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(230,0,0,0.2), transparent);
-    transition: left 0.5s ease;
-}
+.tab-btn:hover { color: var(--text-main); background: rgba(230, 0, 0, 0.05); }
+.tab-btn.active { color: var(--accent-main); border: 1px solid rgba(230, 0, 0, 0.3); background: rgba(230, 0, 0, 0.08); }
 
-.tab-btn:hover::before {
-    left: 100%;
-}
-
-.tab-btn:hover {
-    color: var(--text-main);
-    background: rgba(230, 0, 0, 0.05);
-}
-
-.tab-btn.active {
-    color: var(--accent-main);
-    border: 1px solid rgba(230, 0, 0, 0.3);
-    background: rgba(230, 0, 0, 0.08);
-}
-
-.content-pane {
-    display: none;
-}
-
-.content-pane.active {
-    display: block;
-}
+.content-pane { display: none; }
+.content-pane.active { display: block; }
 
 h2 {
     font-size: 1.4em;
@@ -190,11 +166,7 @@ h2 {
     padding-left: 10px;
 }
 
-p, ul {
-    line-height: 1.6;
-    color: var(--text-dim);
-    font-size: 1.05em;
-}
+p, ul { line-height: 1.6; color: var(--text-dim); font-size: 1.05em; }
 
 @keyframes slideRight {
     from { opacity: 0; transform: translateX(-15px); }
@@ -212,22 +184,13 @@ p, ul {
     font-size: 1.05em;
     color: var(--text-main);
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-    transition: border-left-color 0.3s ease;
-}
-
-.cmd-block:hover {
-    border-left-color: #ff3333;
+    overflow-x: auto;
 }
 
 .content-pane.active .cmd-block {
     opacity: 0;
     animation: slideRight 0.4s ease forwards;
 }
-.content-pane.active .cmd-block:nth-of-type(1) { animation-delay: 0.1s; }
-.content-pane.active .cmd-block:nth-of-type(2) { animation-delay: 0.2s; }
-.content-pane.active .cmd-block:nth-of-type(3) { animation-delay: 0.3s; }
-.content-pane.active .cmd-block:nth-of-type(4) { animation-delay: 0.4s; }
-.content-pane.active .cmd-block:nth-of-type(5) { animation-delay: 0.5s; }
 
 .player-bar {
     position: fixed;
@@ -244,6 +207,8 @@ p, ul {
     gap: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     z-index: 1000;
+    width: max-content;
+    max-width: 95%;
 }
 
 .player-btn {
@@ -254,120 +219,81 @@ p, ul {
     border-radius: 2px;
     cursor: url('hover.png'), pointer;
     font-weight: 600;
-    font-size: 0.85em;
     text-transform: uppercase;
-    letter-spacing: 1px;
     transition: all 0.2s;
 }
 
-.player-btn:hover {
-    background: var(--accent-main);
-    color: #000;
-}
+.player-btn:hover { background: var(--accent-main); color: #000; }
 
-.track-info {
-    font-size: 0.9em;
-    color: var(--text-dim);
-    min-width: 150px;
+.track-info { 
+    font-size: 0.9em; 
+    color: var(--text-dim); 
+    min-width: 150px; 
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.volume-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-input[type=range] {
-    -webkit-appearance: none;
-    width: 100px;
-    background: transparent;
-    cursor: url('hover.png'), pointer;
-}
-input[type=range]:focus {
-    outline: none;
-}
-input[type=range]::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 4px;
-    background: rgba(230, 0, 0, 0.2);
-    border-radius: 2px;
-}
-input[type=range]::-webkit-slider-thumb {
-    height: 12px;
-    width: 12px;
-    border-radius: 50%;
-    background: var(--accent-main);
-    -webkit-appearance: none;
-    margin-top: -4px;
-    transition: transform 0.1s;
-}
-input[type=range]::-webkit-slider-thumb:hover {
-    transform: scale(1.3);
-}
-input[type=range]::-moz-range-track {
-    width: 100%;
-    height: 4px;
-    background: rgba(230, 0, 0, 0.2);
-    border-radius: 2px;
-}
-input[type=range]::-moz-range-thumb {
-    height: 12px;
-    width: 12px;
-    border-radius: 50%;
-    background: var(--accent-main);
-    border: none;
-    transition: transform 0.1s;
-}
-input[type=range]::-moz-range-thumb:hover {
-    transform: scale(1.3);
-}
+input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; cursor: url('hover.png'), pointer; }
+input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(230, 0, 0, 0.2); border-radius: 2px; }
+input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; background: var(--accent-main); -webkit-appearance: none; margin-top: -4px; }
 
 .toast {
-    position: fixed;
-    top: 20px;
-    right: -400px;
-    background: rgba(15, 0, 0, 0.95);
-    border: 1px solid var(--accent-main);
-    color: var(--text-main);
-    padding: 16px 24px;
-    border-radius: 2px;
+    position: fixed; top: 20px; right: -400px; background: rgba(15, 0, 0, 0.95);
+    border: 1px solid var(--accent-main); color: var(--text-main);
+    padding: 16px 24px; border-radius: 2px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.8);
     transition: right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-    z-index: 2000;
-    border-left: 4px solid var(--accent-main);
+    z-index: 2000; border-left: 4px solid var(--accent-main);
 }
-.toast.show {
-    right: 20px;
-}
-#toast-title {
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.85em;
-    letter-spacing: 1px;
-    color: var(--accent-main);
-}
-.toast-sub {
-    font-size: 0.9em;
-    margin-top: 6px;
-    color: var(--text-dim);
+.toast.show { right: 20px; }
+#toast-title { font-weight: 700; text-transform: uppercase; font-size: 0.85em; color: var(--accent-main); }
+.toast-sub { font-size: 0.9em; margin-top: 6px; color: var(--text-dim); }
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+    body { padding: 30px 15px 160px 15px; }
+    .wrapper { padding: 25px 15px; }
+    h1 { font-size: 2em; }
+    .tabs { gap: 4px; }
+    .tab-btn { padding: 8px 12px; font-size: 0.85em; flex-grow: 1; text-align: center; }
+    
+    .player-bar {
+        width: 95%;
+        padding: 12px 15px;
+        gap: 12px;
+        justify-content: space-between;
+    }
+    .track-info { min-width: 0; flex-grow: 1; }
+    input[type=range] { width: 70px; }
+    
+    .toast {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        top: -150px;
+        width: 90%;
+        max-width: 350px;
+        transition: top 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .toast.show { right: auto; top: 20px; }
+    
+    #visualizer { height: 100px; opacity: 0.5; }
 }
 </style>
 </head>
 <body>
 
 <div id="eye-container"></div>
+<canvas id="visualizer"></canvas>
 
-<div class="toast" id="music-toast">
-    <div id="toast-title"></div>
-    <div class="toast-sub" id="toast-desc"></div>
-</div>
+<div class="toast" id="music-toast"><div id="toast-title"></div><div class="toast-sub" id="toast-desc"></div></div>
 
 <div class="wrapper">
     <h1>Eye of MAGIC</h1>
-    
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('bridge')">System Bridge</button>
+        <button class="tab-btn active" onclick="switchTab('bridge')">Bridge</button>
         <button class="tab-btn" onclick="switchTab('moderation')">Moderation</button>
         <button class="tab-btn" onclick="switchTab('utility')">Utility</button>
         <button class="tab-btn" onclick="switchTab('console')">Console</button>
@@ -375,115 +301,168 @@ input[type=range]::-moz-range-thumb:hover {
 
     <div class="content-pane active" id="bridge">
         <h2>Architecture Overview</h2>
-        <p>This system operates as a real-time, low-latency bridge linking Discord directly to active Roblox server instances. Commands executed within Discord do not interface with Roblox directly; instead, they modify a centralized moderation queue managed by the host application.</p>
-        <p>Active game instances query this queue on a structured interval. When a pending moderation action is detected, the server instance retrieves the payload and executes the restriction immediately against the target player.</p>
+        <p>This system operates as a real-time bridge linking Discord directly to active Roblox server instances through a centralized host application queue.</p>
     </div>
 
     <div class="content-pane" id="moderation">
         <h2>Moderation Directives</h2>
-        <p>Execution requires proper authorization parameters within the Discord environment.</p>
-        
         <div class="cmd-block">mg.ban &lt;username&gt; [reason]</div>
-        <p>Issues a persistent universe ban, blocking the specified account from connecting to any active server node.</p>
-
-        <div class="cmd-block">mg.unban &lt;username&gt;</div>
-        <p>Purges the target user from the global blacklist, restoring connection privileges.</p>
-
+        <p>Issues a persistent universe ban.</p>
         <div class="cmd-block">mg.kick &lt;username&gt; [reason]</div>
-        <p>Forcefully terminates the user's connection to their current active server node.</p>
-
-        <div class="cmd-block">mg.flag &lt;username&gt; [reason]</div>
-        <p>Applies an administrative warning tag. When this account joins any server, a priority alert is broadcasted to the system logs.</p>
-
-        <div class="cmd-block">mg.unflag &lt;username&gt;</div>
-        <p>Removes the administrative warning tag from the target profile.</p>
+        <p>Forcefully terminates the user's connection.</p>
     </div>
 
     <div class="content-pane" id="utility">
         <h2>System Utilities</h2>
-        
         <div class="cmd-block">mg.clear [amount]</div>
-        <p>Purges channel message logs. Executing without parameters, or specifying a value exceeding 100, will trigger an automated channel clone protocol to execute an instant, complete wipe of the environment.</p>
-
-        <div class="cmd-block">mg.help</div>
-        <p>Retrieves the localized command reference index within Discord.</p>
+        <p>Purges channel message logs using automated recreation.</p>
     </div>
 
     <div class="content-pane" id="console">
         <h2>Host Terminal Directives</h2>
-        <p>These commands are strictly for the local host terminal running the Python executable. They will not process via Discord.</p>
-
-        <div class="cmd-block">stop</div>
-        <p>Initiates a safe shutdown sequence, unbinding the web server from port 8080 and cleanly severing the Discord API connection.</p>
-
-        <div class="cmd-block">st</div>
-        <p>Outputs the valid presence status codes to the local terminal display.</p>
-
         <div class="cmd-block">status &lt;type&gt; &lt;message&gt;</div>
-        <p>Modifies the rich presence activity string attached to the application profile.</p>
-        <ul>
-            <li>0 -> Playing [Message]</li>
-            <li>1 -> Streaming [Message]</li>
-            <li>2 -> Listening to [Message]</li>
-            <li>3 -> Watching [Message]</li>
-            <li>5 -> Competing in [Message]</li>
-        </ul>
+        <p>Modifies the rich presence activity string.</p>
     </div>
 </div>
 
 <div class="player-bar">
     <button class="player-btn" id="play-btn" onclick="toggleMusic()">Play</button>
     <div class="track-info" id="track-display">MAGIC</div>
-    <div class="volume-container">
-        <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.5">
-    </div>
+    <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.5">
 </div>
 
-<audio id="bg-audio" loop></audio>
+<audio id="bg-audio" loop crossorigin="anonymous"></audio>
 
 <script>
 const track = { source: "audio/MAGIC.mp3", title: "MAGIC", credit: "Written and sang by Ado" };
-
 const audioEl = document.getElementById("bg-audio");
 const playBtn = document.getElementById("play-btn");
 const toastEl = document.getElementById("music-toast");
 const toastTitle = document.getElementById("toast-title");
 const toastDesc = document.getElementById("toast-desc");
-const volSlider = document.getElementById("vol-slider");
 
-let targetVolume = 0.5;
-let fadeInterval = null;
 let hasStarted = false;
-let toastTimeout = null;
-
 audioEl.src = track.source;
-audioEl.volume = 0;
+audioEl.volume = 0.5;
 
-// --- Eye Spawning Logic (5 Left, 5 Right) ---
+// --- Audio Visualizer Logic ---
+let audioCtx = null;
+let analyser = null;
+let sourceNode = null;
+const canvas = document.getElementById('visualizer');
+const canvasCtx = canvas.getContext('2d');
+
+function initVisualizer() {
+    if (audioCtx) return; 
+    
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    
+    sourceNode = audioCtx.createMediaElementSource(audioEl);
+    sourceNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function draw() {
+        requestAnimationFrame(draw);
+        
+        if(canvas.width !== window.innerWidth) {
+            canvas.width = window.innerWidth;
+            canvas.height = 150;
+        }
+
+        analyser.getByteFrequencyData(dataArray);
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength);
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            barHeight = dataArray[i] * 0.6;
+            canvasCtx.fillStyle = `rgba(230, 0, 0, ${(barHeight / 100)})`;
+            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+            x += barWidth;
+        }
+    }
+    draw();
+}
+
+// --- Audio Controls & Toggles ---
+function showToast(status) {
+    toastTitle.textContent = status;
+    toastDesc.textContent = track.title + " - " + track.credit;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 4500);
+}
+
+function startMusic() {
+    if (hasStarted) return;
+    initVisualizer(); 
+    
+    if(audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    
+    audioEl.play().then(() => {
+        hasStarted = true;
+        playBtn.textContent = "Pause";
+        showToast("Now Playing");
+    }).catch(() => {});
+}
+
+// Mobile and Desktop interaction triggers
+['click', 'keydown', 'scroll', 'mousemove', 'touchstart'].forEach(evt => document.addEventListener(evt, startMusic, { once: true }));
+
+function toggleMusic() {
+    if (audioEl.paused) {
+        audioEl.play();
+        playBtn.textContent = "Pause";
+        showToast("Resumed");
+    } else {
+        audioEl.pause();
+        playBtn.textContent = "Play";
+        showToast("Paused");
+    }
+}
+
+document.getElementById("vol-slider").addEventListener('input', (e) => {
+    audioEl.volume = parseFloat(e.target.value);
+});
+
+// --- Eye Logic (Mobile Safe) ---
 const eyeContainer = document.getElementById('eye-container');
 const eyesPerSide = 5;
 const eyes = [];
 
 function spawnEyes() {
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-    const wrapperWidth = 840; 
-    
-    let leftZoneMax = (screenWidth / 2) - (wrapperWidth / 2) - 60;
-    if (leftZoneMax < 40) leftZoneMax = 40; 
-    
-    let rightZoneMin = (screenWidth / 2) + (wrapperWidth / 2) + 20;
-    if (rightZoneMin > screenWidth - 60) rightZoneMin = screenWidth - 60;
-
     eyeContainer.innerHTML = '';
     eyes.length = 0;
-
-    for (let i = 0; i < eyesPerSide; i++) {
-        createEye(20 + Math.random() * (leftZoneMax - 20), screenHeight);
-    }
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
     
-    for (let i = 0; i < eyesPerSide; i++) {
-        createEye(rightZoneMin + Math.random() * ((screenWidth - 60) - rightZoneMin), screenHeight);
+    // If mobile/tablet, spawn 6 eyes scattered behind the wrapper
+    if (screenWidth < 900) {
+        for (let i = 0; i < 6; i++) {
+            createEye(Math.random() * (screenWidth - 50), screenHeight);
+        }
+    } else {
+        // Desktop: 5 Left, 5 Right
+        const wrapperWidth = 840; 
+        let leftZoneMax = (screenWidth / 2) - (wrapperWidth / 2) - 60;
+        if (leftZoneMax < 40) leftZoneMax = 40; 
+        let rightZoneMin = (screenWidth / 2) + (wrapperWidth / 2) + 20;
+        if (rightZoneMin > screenWidth - 60) rightZoneMin = screenWidth - 60;
+
+        for (let i = 0; i < eyesPerSide; i++) {
+            createEye(20 + Math.random() * (leftZoneMax - 20), screenHeight);
+        }
+        for (let i = 0; i < eyesPerSide; i++) {
+            createEye(rightZoneMin + Math.random() * ((screenWidth - 60) - rightZoneMin), screenHeight);
+        }
     }
 }
 
@@ -491,9 +470,7 @@ function createEye(xPos, screenHeight) {
     const eye = document.createElement('img');
     eye.src = 'eye.png';
     eye.className = 'eye-img';
-    
     const yPos = 40 + Math.random() * (screenHeight - 100);
-    
     eye.style.left = `${xPos}px`;
     eye.style.top = `${yPos}px`;
     eyeContainer.appendChild(eye);
@@ -503,124 +480,33 @@ function createEye(xPos, screenHeight) {
 spawnEyes();
 window.addEventListener('resize', spawnEyes);
 
+// Desktop mouse tracking
 document.addEventListener('mousemove', (e) => {
+    updateEyeRotation(e.clientX, e.clientY);
+});
+
+// Mobile touch tracking
+document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    updateEyeRotation(touch.clientX, touch.clientY);
+}, { passive: true });
+
+function updateEyeRotation(targetX, targetY) {
     eyes.forEach(eye => {
         const rect = eye.getBoundingClientRect();
         const eyeCenterX = rect.left + (rect.width / 2);
         const eyeCenterY = rect.top + (rect.height / 2);
-        
-        const rad = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
+        const rad = Math.atan2(targetY - eyeCenterY, targetX - eyeCenterX);
         const deg = rad * (180 / Math.PI);
-        
         eye.style.transform = `rotate(${deg}deg)`;
     });
-});
-
-// --- Audio Logic ---
-function showToast(status) {
-    toastTitle.textContent = status;
-    toastDesc.textContent = track.title + " - " + track.credit;
-    toastEl.classList.add("show");
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => {
-        toastEl.classList.remove("show");
-    }, 4500);
 }
-
-function fadeAudio(targetVol, duration) {
-    return new Promise(resolve => {
-        clearInterval(fadeInterval);
-        const startVol = audioEl.volume;
-        const change = targetVol - startVol;
-        const steps = 25; 
-        const stepTime = duration / steps;
-        let currentStep = 0;
-
-        if (change === 0) return resolve();
-
-        fadeInterval = setInterval(() => {
-            currentStep++;
-            let newVol = startVol + (change * (currentStep / steps));
-            
-            if(newVol > 1) newVol = 1;
-            if(newVol < 0) newVol = 0;
-            
-            audioEl.volume = newVol;
-
-            if (currentStep >= steps) {
-                clearInterval(fadeInterval);
-                audioEl.volume = targetVol;
-                resolve();
-            }
-        }, stepTime);
-    });
-}
-
-function startMusicEngine() {
-    if (hasStarted) return;
-    audioEl.play().then(() => {
-        hasStarted = true;
-        fadeAudio(targetVolume, 1000);
-        playBtn.textContent = "Pause";
-        showToast("Audio Target Acquired");
-        
-        document.removeEventListener('click', startMusicEngine);
-        document.removeEventListener('keydown', startMusicEngine);
-    }).catch(() => {});
-}
-
-window.onload = () => {
-    audioEl.play().then(() => {
-        hasStarted = true;
-        fadeAudio(targetVolume, 1000);
-        playBtn.textContent = "Pause";
-        showToast("Audio Target Acquired");
-    }).catch(() => {
-        document.addEventListener('click', startMusicEngine);
-        document.addEventListener('keydown', startMusicEngine);
-    });
-};
-
-function toggleMusic() {
-    if (!hasStarted) {
-        startMusicEngine();
-        return;
-    }
-    
-    if (audioEl.paused) {
-        audioEl.play();
-        playBtn.textContent = "Pause";
-        fadeAudio(targetVolume, 600);
-        showToast("Audio Playback Resumed");
-    } else {
-        playBtn.textContent = "Play";
-        fadeAudio(0, 600).then(() => {
-            audioEl.pause();
-            showToast("Audio Playback Paused");
-        });
-    }
-}
-
-volSlider.addEventListener('input', (e) => {
-    targetVolume = parseFloat(e.target.value);
-    if (!audioEl.paused && hasStarted) {
-        audioEl.volume = targetVolume;
-    }
-});
 
 function switchTab(tabId) {
-    document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-    document.querySelectorAll(".content-pane").forEach(pane => {
-        pane.classList.remove("active");
-    });
-    
-    const event = window.event;
-    if (event && event.target) {
-        event.target.classList.add("active");
-    }
-    
-    const targetPane = document.getElementById(tabId);
-    targetPane.classList.add("active");
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".content-pane").forEach(p => p.classList.remove("active"));
+    event.target.classList.add("active");
+    document.getElementById(tabId).classList.add("active");
 }
 </script>
 </body>
