@@ -232,10 +232,47 @@ p, ul { line-height: 1.6; color: var(--text-dim); font-size: 1.05em; }
     text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; cursor: url('hover.png'), pointer; }
+/* Completely Rebuilt Slider UI */
+input[type=range] { 
+    -webkit-appearance: none; 
+    width: 100px; 
+    background: transparent; 
+    cursor: url('hover.png'), pointer; 
+}
 input[type=range]:focus { outline: none; }
-input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: rgba(230, 0, 0, 0.3); border-radius: 3px; border: 1px solid rgba(0,0,0,0.5); }
-input[type=range]::-webkit-slider-thumb { height: 16px; width: 16px; background: var(--accent-main); -webkit-appearance: none; margin-top: -6px; border-radius: 50%; box-shadow: 0 0 10px var(--accent-main); }
+
+/* Webkit (Chrome, Safari, Edge) */
+input[type=range]::-webkit-slider-runnable-track { 
+    width: 100%; 
+    height: 6px; 
+    background: rgba(230, 0, 0, 0.4); 
+    border-radius: 3px; 
+}
+input[type=range]::-webkit-slider-thumb { 
+    height: 16px; 
+    width: 16px; 
+    background: var(--accent-main); 
+    -webkit-appearance: none; 
+    margin-top: -5px; /* Centers thumb over a 6px track */
+    border-radius: 50%; 
+    box-shadow: 0 0 10px var(--accent-main); 
+}
+
+/* Firefox */
+input[type=range]::-moz-range-track {
+    width: 100%; 
+    height: 6px; 
+    background: rgba(230, 0, 0, 0.4); 
+    border-radius: 3px;
+}
+input[type=range]::-moz-range-thumb {
+    height: 16px; 
+    width: 16px; 
+    background: var(--accent-main);
+    border: none; 
+    border-radius: 50%; 
+    box-shadow: 0 0 10px var(--accent-main);
+}
 
 .toast {
     position: fixed; top: 20px; right: -400px; background: rgba(15, 0, 0, 0.95);
@@ -335,7 +372,7 @@ input[type=range]::-webkit-slider-thumb { height: 16px; width: 16px; background:
 <script>
 // --- CORE CONFIGURATION ---
 const track = { source: "audio/MAGIC.mp3", title: "MAGIC", credit: "Written and sang by Ado" };
-const DISCORD_CLIENT_ID = "1520223263501062195"; 
+const DISCORD_CLIENT_ID = "1520223263501062195"; // Integrated Client ID
 
 // --- GLOBAL VARIABLES ---
 const audioEl = document.getElementById("bg-audio");
@@ -347,18 +384,13 @@ const volSlider = document.getElementById("vol-slider");
 
 let hasStarted = false;
 let isStarting = false;
-let targetVolume = 0.5;
+let targetVolume = parseFloat(volSlider.value);
 let fadeInterval = null;
 audioEl.src = track.source;
 audioEl.volume = 0; 
 
 // --- DISCORD OAUTH2 LOGIC ---
 function initiateDiscordLogin() {
-    if (DISCORD_CLIENT_ID === "YOUR_CLIENT_ID_HERE") {
-        showToast("Setup Required");
-        toastDesc.textContent = "You must enter your Client ID in the script first.";
-        return;
-    }
     const currentUrl = window.location.href.split('#')[0];
     const authUrl = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(currentUrl)}&scope=identify`;
     window.location.href = authUrl;
@@ -394,6 +426,7 @@ function verifyDiscordLogin() {
             loginBtn.classList.add('logged-in');
             loginBtn.onclick = logoutDiscord; 
             
+            // Validating host privileges via specific User ID
             if (user.id === '1328528571039223860') {
                 document.getElementById('console-tab-btn').style.display = 'inline-block';
             }
@@ -485,7 +518,6 @@ function showToast(status) {
     setTimeout(() => toastEl.classList.remove("show"), 4500);
 }
 
-// Only True Gestures allowed by browsers to unlock AudioContext
 const validGestures = ['click', 'keydown', 'touchstart'];
 
 function startMusicEngine() {
@@ -494,7 +526,6 @@ function startMusicEngine() {
     
     initVisualizer(); 
     
-    // Resume context if suspended
     if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
@@ -504,7 +535,6 @@ function startMusicEngine() {
 
     if (playPromise !== undefined) {
         playPromise.then(() => {
-            // Success! The browser allowed it.
             hasStarted = true;
             isStarting = false;
             playBtn.textContent = "Pause";
@@ -512,17 +542,14 @@ function startMusicEngine() {
             fadeAudio(targetVolume, 1000); 
             showToast("Audio Target Acquired");
             
-            // Clean up the listeners so they don't fire again
             validGestures.forEach(evt => document.removeEventListener(evt, startMusicEngine));
         }).catch(err => {
-            // Blocked by browser. Wait for the user to try again.
             console.warn("Autoplay blocked. Awaiting direct user click.");
             isStarting = false;
         });
     }
 }
 
-// Add the listeners WITHOUT removing them automatically, so if the browser blocks it, they stay active until a real click happens.
 validGestures.forEach(evt => document.addEventListener(evt, startMusicEngine));
 
 function toggleMusic() {
@@ -545,9 +572,13 @@ function toggleMusic() {
     }
 }
 
+// Volume Slider Override
 volSlider.addEventListener('input', (e) => {
     targetVolume = parseFloat(e.target.value);
-    if (!audioEl.paused && hasStarted) {
+    
+    // If the slider is moved, instantly stop any automated fading and apply volume
+    if (hasStarted) {
+        clearInterval(fadeInterval);
         audioEl.volume = targetVolume;
     }
 });
