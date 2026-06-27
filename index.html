@@ -133,8 +133,34 @@ h1 {
     text-align: center; margin-top: 0; font-size: 2.5em;
     font-weight: 800; letter-spacing: 2px;
     color: var(--text-main); text-transform: uppercase;
-    margin-bottom: 30px; animation: textGlow 3s infinite;
+    margin-bottom: 10px; animation: textGlow 3s infinite;
 }
+
+#status-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 30px;
+    font-size: 0.85em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+#status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #a3a3a3;
+    box-shadow: 0 0 8px #a3a3a3;
+    transition: all 0.3s ease;
+}
+#status-dot.online { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
+#status-dot.offline { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+#status-dot.maintenance { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+#status-text.online { color: #00ff00; }
+#status-text.offline { color: #ff0000; }
+#status-text.maintenance { color: #ffaa00; }
 
 .tabs {
     display: flex; gap: 8px; justify-content: center;
@@ -232,7 +258,6 @@ p, ul { line-height: 1.6; color: var(--text-dim); font-size: 1.05em; }
     text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* Completely Rebuilt Slider UI */
 input[type=range] { 
     -webkit-appearance: none; 
     width: 100px; 
@@ -241,7 +266,6 @@ input[type=range] {
 }
 input[type=range]:focus { outline: none; }
 
-/* Webkit (Chrome, Safari, Edge) */
 input[type=range]::-webkit-slider-runnable-track { 
     width: 100%; 
     height: 6px; 
@@ -253,12 +277,11 @@ input[type=range]::-webkit-slider-thumb {
     width: 16px; 
     background: var(--accent-main); 
     -webkit-appearance: none; 
-    margin-top: -5px; /* Centers thumb over a 6px track */
+    margin-top: -5px; 
     border-radius: 50%; 
     box-shadow: 0 0 10px var(--accent-main); 
 }
 
-/* Firefox */
 input[type=range]::-moz-range-track {
     width: 100%; 
     height: 6px; 
@@ -317,6 +340,11 @@ input[type=range]::-moz-range-thumb {
     <button id="login-btn" onclick="initiateDiscordLogin()">Login</button>
     
     <h1>Eye of MAGIC</h1>
+    <div id="status-container">
+        <div id="status-dot"></div>
+        <div id="status-text">Checking...</div>
+    </div>
+
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('bridge')">Bridge</button>
         <button class="tab-btn" onclick="switchTab('moderation')">Moderation</button>
@@ -339,6 +367,8 @@ input[type=range]::-moz-range-thumb {
         <p>Purges the target user from the global blacklist.</p>
         <div class="cmd-block">mg.flag &lt;username&gt; [reason]</div>
         <p>Applies an administrative warning tag.</p>
+        <div class="cmd-block">mg.userinfo &lt;username&gt;</div>
+        <p>Retrieves profile records and historical data directly from Roblox.</p>
     </div>
 
     <div class="content-pane" id="utility">
@@ -358,6 +388,8 @@ input[type=range]::-moz-range-thumb {
         <p>Outputs the valid presence status codes.</p>
         <div class="cmd-block">status &lt;type&gt; &lt;message&gt;</div>
         <p>Modifies the rich presence activity string.</p>
+        <div class="cmd-block">mg.maintenancemode &lt;true/false&gt;</div>
+        <p>Toggles internal maintenance state across the web layout and app profiles.</p>
     </div>
 </div>
 
@@ -370,11 +402,10 @@ input[type=range]::-moz-range-thumb {
 <audio id="bg-audio" loop></audio>
 
 <script>
-// --- CORE CONFIGURATION ---
 const track = { source: "audio/MAGIC.mp3", title: "MAGIC", credit: "Written and sang by Ado" };
-const DISCORD_CLIENT_ID = "1520223263501062195"; // Integrated Client ID
+const DISCORD_CLIENT_ID = "1520223263501062195"; 
+const NGROK_URL = "https://landfall-unmoving-hexagram.ngrok-free.dev";
 
-// --- GLOBAL VARIABLES ---
 const audioEl = document.getElementById("bg-audio");
 const playBtn = document.getElementById("play-btn");
 const toastEl = document.getElementById("music-toast");
@@ -389,7 +420,41 @@ let fadeInterval = null;
 audioEl.src = track.source;
 audioEl.volume = 0; 
 
-// --- DISCORD OAUTH2 LOGIC ---
+function checkBotStatus() {
+    const dot = document.getElementById("status-dot");
+    const text = document.getElementById("status-text");
+    if(NGROK_URL === "YOUR_NGROK_URL_HERE") {
+        dot.className = "status-dot offline";
+        text.className = "offline";
+        text.textContent = "Offline";
+        return;
+    }
+    fetch(`${NGROK_URL}/status`)
+        .then(res => res.json())
+        .then(data => {
+            dot.className = "";
+            text.className = "";
+            if (data.status === "online") {
+                dot.classList.add("online");
+                text.classList.add("online");
+                text.textContent = "Online";
+            } else if (data.status === "maintenance") {
+                dot.classList.add("maintenance");
+                text.classList.add("maintenance");
+                text.textContent = "Maintenance";
+            }
+        })
+        .catch(() => {
+            dot.className = "";
+            text.className = "";
+            dot.classList.add("offline");
+            text.classList.add("offline");
+            text.textContent = "Offline";
+        });
+}
+setInterval(checkBotStatus, 10000);
+window.addEventListener('load', checkBotStatus);
+
 function initiateDiscordLogin() {
     const currentUrl = window.location.href.split('#')[0];
     const authUrl = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(currentUrl)}&scope=identify`;
@@ -426,7 +491,6 @@ function verifyDiscordLogin() {
             loginBtn.classList.add('logged-in');
             loginBtn.onclick = logoutDiscord; 
             
-            // Validating host privileges via specific User ID
             if (user.id === '1328528571039223860') {
                 document.getElementById('console-tab-btn').style.display = 'inline-block';
             }
@@ -438,7 +502,6 @@ function verifyDiscordLogin() {
 }
 window.addEventListener('load', verifyDiscordLogin);
 
-// --- AUDIO VISUALIZER LOGIC ---
 let audioCtx = null;
 let analyser = null;
 let sourceNode = null;
@@ -483,7 +546,6 @@ function initVisualizer() {
     draw();
 }
 
-// --- FADE MECHANICS & BULLETPROOF AUDIO LOGIC ---
 function fadeAudio(targetVol, duration) {
     return new Promise(resolve => {
         clearInterval(fadeInterval);
@@ -572,18 +634,14 @@ function toggleMusic() {
     }
 }
 
-// Volume Slider Override
 volSlider.addEventListener('input', (e) => {
     targetVolume = parseFloat(e.target.value);
-    
-    // If the slider is moved, instantly stop any automated fading and apply volume
     if (hasStarted) {
         clearInterval(fadeInterval);
         audioEl.volume = targetVolume;
     }
 });
 
-// --- DYNAMIC EYE LOGIC ---
 const eyeContainer = document.getElementById('eye-container');
 const eyesPerSide = 5;
 const eyes = [];
