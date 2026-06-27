@@ -121,6 +121,11 @@ body::after {
     background: var(--accent-main);
     color: #000;
 }
+#login-btn.logged-in:hover {
+    background: #ff3333; /* Slightly lighter red to indicate logout */
+    border-color: #ff3333;
+    content: "Logout";
+}
 
 @keyframes textGlow {
     0% { text-shadow: 0 0 10px rgba(230,0,0,0.2); }
@@ -189,7 +194,7 @@ p, ul { line-height: 1.6; color: var(--text-dim); font-size: 1.05em; }
 }
 
 .content-pane.active .cmd-block {
-    animation: slideRight 0.4s ease backwards; /* backwards fill mode is critical here */
+    animation: slideRight 0.4s ease backwards; 
 }
 .content-pane.active .cmd-block:nth-of-type(1) { animation-delay: 0.05s; }
 .content-pane.active .cmd-block:nth-of-type(2) { animation-delay: 0.15s; }
@@ -259,7 +264,7 @@ input[type=range]::-moz-range-thumb {
 
 @media (max-width: 768px) {
     body { padding: 30px 15px 160px 15px; }
-    .wrapper { padding: 40px 15px 25px 15px; } /* Room for login btn */
+    .wrapper { padding: 40px 15px 25px 15px; } 
     h1 { font-size: 2em; margin-top: 20px; }
     .tabs { gap: 4px; }
     .tab-btn { padding: 8px 12px; font-size: 0.85em; flex-grow: 1; text-align: center; }
@@ -340,7 +345,7 @@ input[type=range]::-moz-range-thumb {
     <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.5">
 </div>
 
-<audio id="bg-audio" loop crossorigin="anonymous"></audio>
+<audio id="bg-audio" loop></audio>
 
 <script>
 // --- CORE CONFIGURATION ---
@@ -359,12 +364,14 @@ const toastDesc = document.getElementById("toast-desc");
 const volSlider = document.getElementById("vol-slider");
 
 let hasStarted = false;
+let isStarting = false;
 let targetVolume = 0.5;
 let fadeInterval = null;
 audioEl.src = track.source;
-audioEl.volume = 0; // Start at 0 for fade in
+audioEl.volume = 0; 
 
-// --- DISCORD OAUTH2 LOGIC ---
+
+// --- DISCORD OAUTH2 & PERSISTENCE LOGIC ---
 function initiateDiscordLogin() {
     if (DISCORD_CLIENT_ID === "YOUR_CLIENT_ID_HERE") {
         showToast("Setup Required");
@@ -376,21 +383,39 @@ function initiateDiscordLogin() {
     window.location.href = authUrl;
 }
 
+function logoutDiscord() {
+    localStorage.removeItem('discord_access_token');
+    window.location.reload();
+}
+
 function verifyDiscordLogin() {
     const fragment = new URLSearchParams(window.location.hash.slice(1));
-    const accessToken = fragment.get('access_token');
+    let accessToken = fragment.get('access_token');
     
     if (accessToken) {
-        window.history.replaceState({}, document.title, window.location.pathname); // Clean URL
-        
+        // Save the new token into browser memory and clean the URL
+        localStorage.setItem('discord_access_token', accessToken);
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+        // Try to pull a saved token from previous sessions
+        accessToken = localStorage.getItem('discord_access_token');
+    }
+    
+    if (accessToken) {
         fetch('https://discord.com/api/users/@me', {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Token expired");
+            return res.json();
+        })
         .then(user => {
             const loginBtn = document.getElementById('login-btn');
             loginBtn.textContent = `User: ${user.username}`;
-            loginBtn.style.pointerEvents = 'none'; // Disable clicking again
+            loginBtn.classList.add('logged-in');
+            
+            // Re-assign the button click to log the user out instead
+            loginBtn.onclick = logoutDiscord; 
             
             // SECURITY CHECK: 
             if (user.id === '1328528571039223860') {
@@ -401,7 +426,10 @@ function verifyDiscordLogin() {
                 showToast("Access Denied");
                 toastDesc.textContent = "You do not have host privileges.";
             }
-        }).catch(console.error);
+        }).catch(err => {
+            console.error("Authentication failed:", err);
+            localStorage.removeItem('discord_access_token'); // Clear the dead token
+        });
     }
 }
 window.addEventListener('load', verifyDiscordLogin);
@@ -453,6 +481,7 @@ function initVisualizer() {
     draw();
 }
 
+
 // --- FADE MECHANICS & AUDIO CONTROLS ---
 function fadeAudio(targetVol, duration) {
     return new Promise(resolve => {
@@ -489,19 +518,26 @@ function showToast(status) {
 }
 
 function startMusic() {
-    if (hasStarted) return;
+    if (hasStarted || isStarting) return;
+    isStarting = true;
+    
     initVisualizer(); 
     
-    if(audioCtx && audioCtx.state === 'suspended') {
+    if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
     
+    audioEl.volume = 0; // Ensure it starts silent for a clean fade in
     audioEl.play().then(() => {
         hasStarted = true;
+        isStarting = false;
         playBtn.textContent = "Pause";
-        fadeAudio(targetVolume, 1000); // 1 sec fade in
+        fadeAudio(targetVolume, 1000); 
         showToast("Audio Target Acquired");
-    }).catch(() => {});
+    }).catch(err => {
+        console.warn("Autoplay still blocked by browser:", err);
+        isStarting = false;
+    });
 }
 
 // Global interaction listeners to bypass autoplay blocks
